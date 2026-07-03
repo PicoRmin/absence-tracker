@@ -1,0 +1,270 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f0c16;
+  --surface: rgba(22, 18, 34, 0.86);
+  --surface-strong: rgba(30, 26, 44, 0.96);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f5f1ea;
+  --muted: #a99fb6;
+  --accent: #c9a46b;
+  --accent-soft: rgba(201, 164, 107, 0.14);
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  --radius: 30px;
+  font-family: 'Inter', 'Vazirmatn', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: radial-gradient(circle at top, rgba(201, 164, 107, 0.12), transparent 35%), linear-gradient(180deg, #0b0812 0%, #100b17 100%);
+  color: var(--text);
+}
+
+body {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+body,
+input,
+button {
+  font: 16px/1.5 var(--font-family, 'Inter', sans-serif);
+}
+
+.dashboard-app {
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 20px 20px 30px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #e2775a);
+  box-shadow: 0 0 24px rgba(201, 164, 107, 0.35);
+}
+
+.brand strong {
+  display: block;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+}
+
+.brand p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ghost-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  cursor: pointer;
+}
+
+main {
+  display: grid;
+  gap: 18px;
+}
+
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.hero-card {
+  padding: 24px;
+}
+
+.hero-label {
+  margin: 0 0 8px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  font-size: 13px;
+}
+
+.hero-count {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.hero-number {
+  font-size: clamp(3.4rem, 7vw, 5.6rem);
+  line-height: 0.9;
+  font-weight: 800;
+}
+
+.hero-unit {
+  color: var(--muted);
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.hero-clock {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: #f7f4eb;
+}
+
+.hero-note {
+  margin-bottom: 22px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.hero-meta {
+  display: grid;
+  gap: 10px;
+}
+
+.hero-meta label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.hero-meta input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+}
+
+.cards-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.card,
+.timeline-card,
+.reflection-card {
+  padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.card-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+  max-width: 220px;
+  text-align: right;
+}
+
+.summary-list,
+.without-list,
+.season-row {
+  display: grid;
+  gap: 12px;
+}
+
+.summary-item,
+.without-item,
+.season-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.summary-item strong,
+.without-item strong {
+  font-size: 15px;
+}
+
+.summary-item span,
+.without-item span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.season-chip {
+  justify-content: space-between;
+}
+
+.season-chip span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.reflection-card {
+  padding-bottom: 26px;
+}
+
+.reflection-text {
+  margin: 0;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+@media (min-width: 640px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 500px) {
+  .dashboard-app {
+    padding: 16px 16px 24px;
+  }
+
+  .hero-card {
+    padding: 20px;
+  }
+
+  .card,
+  .timeline-card,
+  .reflection-card {
+    padding: 18px;
+  }
+
+  .hero-meta input {
+    padding: 12px 14px;
+  }
+}

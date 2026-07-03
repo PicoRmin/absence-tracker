@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Memory Timeline / Absence Tracker</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="dashboard-app">
+    <header class="header">
+      <div class="brand">
+        <span class="brand-mark"></span>
+        <div>
+          <strong>Memory Timeline</strong>
+          <p>تجربه‌ی گذر زمان از نگاه احساسی.</p>
+        </div>
+      </div>
+      <button class="ghost-btn" id="settings-btn" type="button">⚙️</button>
+    </header>
+
+    <main>
+      <section class="hero-card glass">
+        <p class="hero-label">از آخرین ملاقات</p>
+        <div class="hero-count">
+          <div class="hero-number" id="hero-days">412</div>
+          <div class="hero-unit">روز</div>
+        </div>
+        <div class="hero-clock" id="hero-clock">17:43:12</div>
+        <div class="hero-note" id="hero-note">چهار فصل آمدند و رفتند. زمان همچنان روایت می‌کند.</div>
+        <div class="hero-meta">
+          <label for="absence-date">تاریخ شروع</label>
+          <input id="absence-date" type="date" aria-label="تاریخ شروع" />
+        </div>
+      </section>
+
+      <section class="cards-grid">
+        <article class="card glass">
+          <div class="card-header">
+            <h3>دیدگاه‌های زمانی</h3>
+            <p>زمان را به شکلی ملایم و قابل لمس ببینید.</p>
+          </div>
+          <div class="summary-list" id="perspectives-list"></div>
+        </article>
+
+        <article class="card glass">
+          <div class="card-header">
+            <h3>بدون ...</h3>
+            <p>حس غیبت از زاویه‌ی تعاملات.</p>
+          </div>
+          <div class="without-list" id="without-list"></div>
+        </article>
+      </section>
+
+      <section class="timeline-card glass">
+        <div class="card-header">
+          <h3>فصل‌های گذشته</h3>
+          <p>چند بار هر فصل از یاد رفته.</p>
+        </div>
+        <div class="season-row" id="season-row"></div>
+      </section>
+
+      <section class="reflection-card glass">
+        <div class="card-header">
+          <h3>بازتاب امروز</h3>
+        </div>
+        <p class="reflection-text" id="reflection-text"></p>
+      </section>
+    </main>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
