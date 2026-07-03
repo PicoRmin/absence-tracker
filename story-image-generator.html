@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Story — Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15121C; --ink-2:#1E1A28; --ink-3:#262032; --line:#33303E;
+    --gold:#C9A46B; --coral:#E2775A; --paper:#F3EEE3; --muted:#9C93A8;
+    --white:#F6F3EC; --radius:14px;
+    --font-display:'Fraunces','Vazirmatn',serif;
+    --font-body:'Inter','Vazirmatn',sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--ink); color:var(--white); font-family:var(--font-body);
+    overflow:hidden;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-thumb{background:#3a3548; border-radius:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  .app{ 
+    display:grid; 
+    grid-template-columns:240px 1fr 320px; 
+    grid-template-rows:56px 1fr; 
+    height:100vh;
+    height:100dvh; /* Dynamic viewport height for mobile */
+  }
+
+  .topbar{
+    grid-column:1/4; display:flex; align-items:center; justify-content:space-between;
+    padding:0 20px; border-bottom:1px solid var(--line); background:var(--ink);
+    z-index:5; min-height:44px; /* Touch-friendly minimum height */
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand .mark{ width:22px; height:22px; border-radius:6px; background:linear-gradient(135deg,var(--gold),var(--coral)); }
+  .brand .name{ font-family:var(--font-display); font-size:17px; letter-spacing:.2px; }
+  .brand .name b{ font-weight:600; color:var(--gold); }
+  .top-actions{ display:flex; gap:10px; align-items:center; }
+  .fmt-select{
+    background:var(--ink-2); border:1px solid var(--line); color:var(--white);
+    border-radius:10px; padding:8px 12px; font-size:13px; font-family:var(--font-body);
+    min-height:44px; /* Touch-friendly */
+  }
+  .export-btn{
+    display:flex; align-items:center; gap:8px; background:linear-gradient(135deg,var(--gold),#B5824A);
+    color:#1A140A; border:none; border-radius:10px; padding:9px 18px; font-weight:600; font-size:13px;
+    cursor:pointer; transition:transform .15s ease, box-shadow .2s ease;
+    min-height:44px; /* Touch-friendly */
+  }
+  .export-btn:hover{ transform:translateY(-1px); box-shadow:0 8px 20px -6px rgba(201,164,107,.55); }
+  .export-btn:active{ transform:translateY(0px) scale(.98); }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    border-left:1px solid var(--line); padding:18px 12px; overflow-y:auto;
+  }
+  .sidebar h4{ font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--muted); padding:6px 10px 12px; }
+  .cat{
+    display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:12px;
+    cursor:pointer; margin-bottom:4px; position:relative; transition:background .18s ease, transform .15s ease;
+    border:1px solid transparent; min-height:44px; /* Touch-friendly */
+  }
+  .cat:hover{ background:var(--ink-2); transform:translateX(-2px); }
+  .cat.active{
+    background:radial-gradient(120% 140% at 0% 0%, rgba(201,164,107,.18), rgba(201,164,107,.04));
+    border-color:rgba(201,164,107,.35);
+    box-shadow:0 0 0 1px rgba(201,164,107,.15) inset, 0 6px 18px -10px rgba(201,164,107,.5);
+  }
+  .cat .icon{
+    width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    background:var(--ink-3); flex-shrink:0; transition:background .18s ease;
+  }
+  .cat.active .icon{ background:linear-gradient(135deg, rgba(201,164,107,.9), rgba(226,119,90,.85)); }
+  .cat.active .icon svg{ stroke:#1A140A; }
+  .cat .icon svg{ width:16px; height:16px; stroke:var(--gold); fill:none; stroke-width:1.8; }
+  .cat .label{ font-size:13.5px; font-weight:500; }
+  .cat .count{ margin-right:auto; font-size:11px; color:var(--muted); }
+
+  /* ---------- Center preview ---------- */
+  .center{ display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; position:relative; overflow:hidden; }
+  .stage{ display:flex; align-items:center; gap:26px; }
+  .zoom-col{ display:flex; flex-direction:column; gap:10px; align-items:center; }
+  .zoom-btn{
+    width:34px; height:34px; border-radius:9px; background:var(--ink-2); border:1px solid var(--line);
+    color:var(--white); cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center;
+  }
+  .zoom-btn:hover{ background:var(--ink-3); }
+  .phone{
+    position:relative; border-radius:34px; padding:10px; background:#0c0a11;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.7), 0 0 0 1px #2a2534;
+    transition:width .2s ease, height .2s ease;
+  }
+  .phone .notch{
+    position:absolute; top:18px; left:50%; transform:translateX(-50%); width:70px; height:8px;
+    background:#0c0a11; border-radius:6px; z-index:2;
+  }
+  #stage-canvas{ display:block; border-radius:24px; background:#000; }
+  .preview-caption{ margin-top:16px; font-size:12.5px; color:var(--muted); text-align:center; }
+  .preview-caption b{ color:var(--white); font-weight:500; }
+
+  /* ---------- Right column ---------- */
+  .rightcol{ border-right:1px solid var(--line); display:flex; flex-direction:column; overflow:hidden; }
+  .tabs{ display:flex; border-bottom:1px solid var(--line); }
+  .tab{
+    flex:1; text-align:center; padding:13px 0; font-size:12.5px; font-weight:500; color:var(--muted);
+    cursor:pointer; border-bottom:2px solid transparent; transition:color .15s ease;
+  }
+  .tab.active{ color:var(--white); border-bottom-color:var(--gold); }
+  .panel{ flex:1; overflow-y:auto; padding:16px; display:none; }
+  .panel.active{ display:block; }
+
+  /* gallery */
+  .gallery-group{ margin-bottom:18px; }
+  .gallery-group .gname{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px; }
+  .gallery-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .tmpl-card{
+    position:relative; border-radius:12px; overflow:hidden; cursor:pointer; border:1px solid var(--line);
+    transition:transform .18s ease, box-shadow .2s ease, border-color .18s ease; background:var(--ink-2);
+  }
+  .tmpl-card:hover{ transform:translateY(-3px) scale(1.02); box-shadow:0 12px 26px -10px rgba(0,0,0,.6); }
+  .tmpl-card.active{ border-color:var(--gold); box-shadow:0 0 0 1px var(--gold), 0 10px 24px -8px rgba(201,164,107,.45); }
+  .tmpl-card canvas{ width:100%; display:block; aspect-ratio:9/16; }
+  .tmpl-card .tname{ font-size:11px; padding:7px 8px; color:var(--white); background:linear-gradient(0deg, rgba(0,0,0,.55), transparent); position:absolute; bottom:0; left:0; right:0; }
+
+  /* customization form */
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:12px; color:var(--muted); margin-bottom:7px; }
+  .field input[type=text], .field textarea{
+    width:100%; background:var(--ink-2); border:1px solid var(--line); border-radius:9px; color:var(--white);
+    padding:9px 11px; font-size:13px; font-family:var(--font-body); resize:none;
+  }
+  .field input[type=text]:focus, .field textarea:focus{ outline:none; border-color:var(--gold); }
+  .swatches{ display:flex; gap:8px; flex-wrap:wrap; }
+  .swatch{ width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform .12s ease; }
+  .swatch:hover{ transform:scale(1.12); }
+  .swatch.active{ border-color:var(--white); }
+  .theme-row{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .theme-opt{
+    border:1px solid var(--line); border-radius:10px; padding:8px; cursor:pointer; font-size:11.5px; text-align:center;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .theme-opt .swab{ height:28px; border-radius:6px; margin-bottom:6px; }
+  .theme-opt.active{ border-color:var(--gold); background:rgba(201,164,107,.08); }
+  .row2{ display:flex; align-items:center; justify-content:space-between; }
+  .toggle{ width:38px; height:22px; border-radius:20px; background:var(--ink-3); position:relative; cursor:pointer; flex-shrink:0; transition:background .18s ease; }
+  .toggle .dot{ width:16px; height:16px; border-radius:50%; background:var(--muted); position:absolute; top:3px; right:3px; transition:.18s ease; }
+  .toggle.on{ background:linear-gradient(135deg,var(--gold),var(--coral)); }
+  .toggle.on .dot{ background:#1A140A; right:19px; }
+  input[type=range]{ width:100%; accent-color:var(--gold); }
+  .rangeval{ font-size:11px; color:var(--muted); float:left; }
+  .align-row{ display:flex; gap:8px; }
+  .align-btn{ flex:1; padding:8px 0; border:1px solid var(--line); border-radius:9px; text-align:center; font-size:12px; cursor:pointer; color:var(--muted); }
+  .align-btn.active{ border-color:var(--gold); color:var(--white); background:rgba(201,164,107,.08); }
+
+  /* ---------- Bottom Navigation (Mobile) ---------- */
+  .bottom-nav{
+    display:none; /* Hidden on desktop */
+    position:fixed; bottom:0; left:0; right:0; z-index:10;
+    background:var(--ink); border-top:1px solid var(--line);
+    padding:8px 0 calc(8px + env(safe-area-inset-bottom));
+  }
+  .nav-items{
+    display:flex; justify-content:space-around; align-items:center;
+  }
+  .nav-item{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:8px 12px; cursor:pointer; color:var(--muted); font-size:11px;
+    min-height:44px; min-width:44px; border-radius:12px;
+    transition:color .2s ease, background .2s ease;
+  }
+  .nav-item.active{ color:var(--white); background:rgba(201,164,107,.12); }
+  .nav-item .nav-icon{ width:20px; height:20px; }
+  .nav-item .nav-icon svg{ width:100%; height:100%; stroke:currentColor; fill:none; stroke-width:2; }
+
+  /* ---------- Bottom Sheet (Mobile) ---------- */
+  .mobile-sheet{
+    display:none; /* Hidden on desktop */
+    position:fixed; bottom:0; left:0; right:0; z-index:15;
+    background:var(--ink); border-top:1px solid var(--line);
+    border-radius:20px 20px 0 0; transform:translateY(100%);
+    transition:transform .3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    max-height:70vh; overflow:hidden;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .mobile-sheet.open{ transform:translateY(0); }
+  .sheet-handle{
+    width:36px; height:4px; background:var(--line); margin:12px auto 8px;
+    border-radius:2px;
+  }
+  .sheet-content{
+    padding:0 20px 20px; overflow-y:auto; max-height:calc(70vh - 40px);
+  }
+
+  /* ---------- Responsive Breakpoints ---------- */
+  
+  /* Mobile First (<600px) */
+  @media (max-width: 599px){
+    .app{ 
+      grid-template-columns: 1fr; 
+      grid-template-rows: 56px 1fr;
+    }
+    .sidebar, .rightcol{ display:none; }
+    .bottom-nav, .mobile-sheet{ display:block; }
+    
+    /* Mobile center area */
+    .center{ 
+      padding:8px; 
+      height:calc(100dvh - 56px - 70px);
+      justify-content:flex-start; 
+      padding-top:20px;
+    }
+    
+    /* Mobile preview */
+    .stage{ flex-direction:column; gap:16px; }
+    .zoom-col{ flex-direction:row; order:2; }
+    .phone{ 
+      width:min(85vw, 280px) !important; 
+      height:auto !important;
+    }
+    #stage-canvas{ 
+      width:100% !important; 
+      height:auto !important; 
+      max-height:50vh;
+    }
+    
+    /* Compact mobile topbar */
+    .topbar{ 
+      padding:0 12px; 
+      height:56px;
+    }
+    .brand .name{ font-size:14px; }
+    .brand .mark{ width:16px; height:16px; }
+    .top-actions{ gap:8px; }
+    .fmt-select{ 
+      padding:6px 8px; 
+      font-size:11px; 
+      min-width:120px;
+    }
+    .export-btn{ 
+      padding:8px 12px; 
+      font-size:11px; 
+      gap:4px;
+    }
+    .export-btn svg{ width:12px; height:12px; }
+  }
+
+  /* Tablet (600px - 980px) */
+  @media (min-width: 600px) and (max-width: 980px){
+    .app{ 
+      grid-template-columns: 1fr; 
+      grid-template-rows: 56px 1fr;
+    }
+    .sidebar, .rightcol{ display:none; }
+    .bottom-nav, .mobile-sheet{ display:block; }
+    
+    /* Tablet center area */
+    .center{ 
+      padding:16px; 
+      height:calc(100dvh - 56px - 70px);
+    }
+    
+    /* Tablet preview */
+    .phone{ 
+      width:min(60vw, 350px) !important; 
+      height:auto !important;
+    }
+    #stage-canvas{ 
+      width:100% !important; 
+      height:auto !important; 
+      max-height:65vh;
+    }
+    
+    /* Tablet topbar */
+    .topbar{ padding:0 16px; }
+    .brand .name{ font-size:16px; }
+    .fmt-select{ padding:8px 12px; font-size:13px; }
+    .export-btn{ padding:9px 16px; font-size:13px; }
+  }
+
+  /* Desktop (>980px) - Original layout */
+  @media (min-width: 981px){
+    .bottom-nav, .mobile-sheet{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><div class="mark"></div><div class="name">Story<b>craft</b></div></div>
+    <div class="top-actions">
+      <select class="fmt-select" id="fmt-select">
+        <option value="1080x1920" selected>استوری اینستاگرام · 1080×1920</option>
+        <option value="1080x1350">پست اینستاگرام · 1080×1350</option>
+        <option value="1080x1080">مربع · 1080×1080</option>
+        <option value="1200x630">لینکدین / X · 1200×630</option>
+      </select>
+      <button class="export-btn" id="export-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A140A" stroke-width="2"><path d="M12 3v13m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+        دانلود PNG
+      </button>
+    </div>
+  </div>
+
+  <div class="sidebar" id="sidebar"></div>
+
+  <div class="center">
+    <div class="stage">
+      <div class="zoom-col">
+        <div class="zoom-btn" id="zoom-in">+</div>
+        <div class="zoom-btn" id="zoom-out">–</div>
+      </div>
+      <div class="phone" id="phone">
+        <div class="notch"></div>
+        <canvas id="stage-canvas" width="1080" height="1920"></canvas>
+      </div>
+    </div>
+    <div class="preview-caption">پیش‌نمایش زنده · <b id="tmpl-caption">—</b></div>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <div class="bottom-nav" id="bottom-nav">
+    <div class="nav-items">
+      <div class="nav-item active" data-nav="categories">
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg></div>
+        <span>دسته‌بندی</span>
+      </div>
+      <div class="nav-item" data-nav="gallery">
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="m9 9 5 12 4-9"/></svg></div>
+        <span>گالری</span>
+      </div>
+      <div class="nav-item" data-nav="customize">
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <span>تنظیمات</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Sheet -->
+  <div class="mobile-sheet" id="mobile-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-content" id="sheet-content">
+      <!-- Content will be dynamically inserted here -->
+    </div>
+  </div>
+
+  <div class="rightcol">
+    <div class="tabs">
+      <div class="tab active" data-tab="gallery">گالری قالب‌ها</div>
+      <div class="tab" data-tab="customize">شخصی‌سازی</div>
+    </div>
+    <div class="panel active" id="panel-gallery"></div>
+    <div class="panel" id="panel-customize"></div>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+
+const THEMES = {
+  nightRadio:{
+    name:'Night Radio', group:'Dark Premium',
+    swatch:['#15121C','#C9A46B'],
+    text:'#F3EEE3', textDim:'rgba(243,238,227,.62)', accentDefault:'#C9A46B',
+    bg(ctx,W,H){
+      const g=ctx.createLinearGradient(0,0,0,H);
+      g.addColorStop(0,'#1B1726'); g.addColorStop(1,'#0F0D14');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      const r=ctx.createRadialGradient(W*0.18,H*0.14,10,W*0.18,H*0.14,W*0.9);
+      r.addColorStop(0,'rgba(201,164,107,0.16)'); r.addColorStop(1,'rgba(201,164,107,0)');
+      ctx.fillStyle=r; ctx.fillRect(0,0,W,H);
+      ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=2;
+      for(let i=0;i<5;i++){ ctx.beginPath(); ctx.arc(W*0.85,H*0.08,180+i*90,0,Math.PI*2); ctx.stroke(); }
+      ctx.restore();
+    }
+  },
+  auroraGlass:{
+    name:'Aurora Glass', group:'Glassmorphism',
+    swatch:['#1B1035','#59D6C7'],
+    text:'#F5F3FF', textDim:'rgba(245,243,255,.66)', accentDefault:'#8FE3D0',
+    bg(ctx,W,H){
+      const g=ctx.createLinearGradient(0,0,W,H);
+      g.addColorStop(0,'#1B1035'); g.addColorStop(0.55,'#241748'); g.addColorStop(1,'#12102A');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      function blob(x,y,r,c){ const rg=ctx.createRadialGradient(x,y,0,x,y,r); rg.addColorStop(0,c); rg.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=rg; ctx.fillRect(0,0,W,H); }
+      blob(W*0.15,H*0.12,W*0.65,'rgba(89,214,199,0.28)');
+      blob(W*0.9,H*0.28,W*0.55,'rgba(178,124,255,0.24)');
+      blob(W*0.5,H*0.92,W*0.7,'rgba(226,119,90,0.16)');
+    }
+  },
+  editorialPaper:{
+    name:'Editorial Paper', group:'Editorial',
+    swatch:['#F3EEE3','#C9522F'],
+    text:'#241F2B', textDim:'rgba(36,31,43,.6)', accentDefault:'#C9522F',
+    bg(ctx,W,H){
+      ctx.fillStyle='#F3EEE3'; ctx.fillRect(0,0,W,H);
+      ctx.save(); ctx.strokeStyle='rgba(36,31,43,0.06)'; ctx.lineWidth=1;
+      for(let y=90;y<H;y+=64){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+      ctx.restore();
+    }
+  },
+  luxuryNoir:{
+    name:'Luxury Noir', group:'Luxury',
+    swatch:['#0A0A0C','#C9A46B'],
+    text:'#EDE6D8', textDim:'rgba(237,230,216,.6)', accentDefault:'#C9A46B',
+    bg(ctx,W,H){
+      ctx.fillStyle='#0A0A0C'; ctx.fillRect(0,0,W,H);
+      ctx.save();
+      ctx.strokeStyle='rgba(201,164,107,0.5)'; ctx.lineWidth=2;
+      ctx.strokeRect(56,56,W-112,H-112);
+      ctx.restore();
+    }
+  }
+};
+
+const CATEGORIES = [
+  {id:'meeting', label:'آخرین ملاقات', icon:'mic', field:{title:'گفتگوی امروز با',subtitle:'رادیو بی‌نهایت',value:'۴۲ روز',caption:'از آخرین قسمت گذشته است'}},
+  {id:'stats', label:'آمار کلی', icon:'chart', field:{title:'یک سال با شما',subtitle:'فصل هفتم',value:'',caption:''}},
+  {id:'time', label:'گذر زمان', icon:'clock', field:{title:'زمان سپری‌شده',subtitle:'از اولین قسمت',value:'۶۴٪',caption:'تا مایل‌سنگ بعدی'}},
+  {id:'milestones', label:'نقاط عطف', icon:'flag', field:{title:'مسیر طی‌شده',subtitle:'فصل دوم',value:'',caption:''}},
+  {id:'quote', label:'نقل‌قول محبوب', icon:'quote', field:{title:'«هر قسمت، یک آغاز تازه است»',subtitle:'قسمت ۱۱۸ · صدای شب',value:'',caption:''}},
+  {id:'custom', label:'استوری دلخواه', icon:'spark', field:{title:'عنوان دلخواه شما',subtitle:'زیرعنوان کوتاه',value:'',caption:'متن پایانی'}},
+];
+
+const ICONS = {
+  mic:'<path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  flag:'<path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/>',
+  quote:'<path d="M7 8c-2 1-3 3-3 5s1.5 3 3 3 3-1.5 3-3-1-3-2-3M17 8c-2 1-3 3-3 5s1.5 3 3 3 3-1.5 3-3-1-3-2-3"/>',
+  spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>'
+};
+
+const TEMPLATES = [
+  // meeting
+  {id:'golden-meeting',  name:'Golden Hour',    cat:'meeting',    layout:'meeting',   theme:'nightRadio'},
+  {id:'afterglow',       name:'Afterglow',      cat:'meeting',    layout:'meeting',   theme:'auroraGlass'},
+  {id:'neon-meeting',    name:'Neon Split',     cat:'meeting',    layout:'neonSplit',  theme:'nightRadio'},
+  {id:'cover-meeting',   name:'Cover',          cat:'meeting',    layout:'cover',     theme:'luxuryNoir'},
+  // stats
+  {id:'ledger',          name:'The Ledger',     cat:'stats',      layout:'grid',      theme:'luxuryNoir'},
+  {id:'field-notes',     name:'Field Notes',    cat:'stats',      layout:'grid',      theme:'editorialPaper'},
+  {id:'mosaic-stats',    name:'Mosaic',         cat:'stats',      layout:'mosaic',    theme:'auroraGlass'},
+  {id:'cinematic-stats', name:'Cinematic',      cat:'stats',      layout:'cinematic', theme:'nightRadio'},
+  // time
+  {id:'orbit',           name:'Orbit',          cat:'time',       layout:'ring',      theme:'nightRadio'},
+  {id:'halftime',        name:'Halftime',       cat:'time',       layout:'ring',      theme:'auroraGlass'},
+  {id:'monogram-time',   name:'Monogram',       cat:'time',       layout:'monogram',  theme:'luxuryNoir'},
+  {id:'postcard-time',   name:'Postcard',       cat:'time',       layout:'postcard',  theme:'editorialPaper'},
+  // milestones
+  {id:'waypoints',       name:'Waypoints',      cat:'milestones', layout:'timeline',  theme:'editorialPaper'},
+  {id:'ascent',          name:'Ascent',         cat:'milestones', layout:'timeline',  theme:'luxuryNoir'},
+  {id:'neon-milestone',  name:'Neon Steps',     cat:'milestones', layout:'neonSplit',  theme:'auroraGlass'},
+  {id:'cover-milestone', name:'Chapter',        cat:'milestones', layout:'cover',     theme:'nightRadio'},
+  // quote
+  {id:'spoken-word',     name:'Spoken Word',    cat:'quote',      layout:'quote',     theme:'nightRadio'},
+  {id:'marginalia',      name:'Marginalia',     cat:'quote',      layout:'quote',     theme:'editorialPaper'},
+  {id:'cinematic-quote', name:'Cinematic',      cat:'quote',      layout:'cinematic', theme:'luxuryNoir'},
+  {id:'postcard-quote',  name:'Postcard',       cat:'quote',      layout:'postcard',  theme:'auroraGlass'},
+  // custom
+  {id:'open-canvas',     name:'Open Canvas',    cat:'custom',     layout:'blank',     theme:'auroraGlass'},
+  {id:'blank-slate',     name:'Blank Slate',    cat:'custom',     layout:'blank',     theme:'luxuryNoir'},
+  {id:'monogram-custom', name:'Monogram',       cat:'custom',     layout:'monogram',  theme:'nightRadio'},
+  {id:'mosaic-custom',   name:'Mosaic',         cat:'custom',     layout:'mosaic',    theme:'editorialPaper'},
+];
+
+/* ===================== STATE ===================== */
+
+const state = {
+  category:'meeting',
+  templateId:'golden-meeting',
+  theme:'nightRadio',
+  accent:null,
+  cornerRadius:28,
+  shadowIntensity:40,
+  alignment:'right',
+  watermark:true,
+  brand:false,
+  texts:{...CATEGORIES[0].field}
+};
+
+const FORMATS = {'1080x1920':[1080,1920], '1080x1350':[1080,1350], '1080x1080':[1080,1080], '1200x630':[1200,630]};
+let format = FORMATS['1080x1920'];
+let zoom = 1;
+
+/* ===================== HELPERS ===================== */
+
+function roundRect(ctx,x,y,w,h,r){
+  const rr = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+rr,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rr);
+  ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr);
+  ctx.arcTo(x,y,x+w,y,rr);
+  ctx.closePath();
+}
+
+function waveform(ctx,x,y,w,amp,color,alpha,seed){
+  ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=3; ctx.beginPath();
+  const N=48;
+  for(let i=0;i<=N;i++){
+    const px = x + (w*i/N);
+    const py = y + Math.sin(i*0.55+seed)*amp*Math.sin(i/N*Math.PI);
+    if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+  }
+  ctx.stroke(); ctx.restore();
+}
+
+function bars(ctx,x,y,w,color,alpha,seed){
+  ctx.save(); ctx.globalAlpha=alpha; ctx.fillStyle=color;
+  const N=28, gap=6, bw=(w-gap*(N-1))/N;
+  for(let i=0;i<N;i++){
+    const h = 10 + Math.abs(Math.sin(i*0.7+seed))*46;
+    roundRect(ctx, x+i*(bw+gap), y-h/2, bw, h, bw/2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function wrapText(ctx,text,x,y,maxWidth,lineHeight,align){
+  const words = text.split(' ');
+  let line=''; const lines=[];
+  for(const w of words){
+    const test = line ? line+' '+w : w;
+    if(ctx.measureText(test).width > maxWidth && line){ lines.push(line); line=w; }
+    else line=test;
+  }
+  lines.push(line);
+  lines.forEach((l,i)=>{
+    let lx = x;
+    ctx.textAlign = align;
+    ctx.fillText(l, lx, y + i*lineHeight);
+  });
+  return lines.length;
+}
+
+/* ===================== LAYOUT RENDERERS ===================== */
+
+function drawFooter(ctx,W,H,theme,texts,watermark,brand){
+  ctx.save();
+  ctx.font='500 26px Inter, sans-serif';
+  ctx.fillStyle=theme.textDim;
+  ctx.textAlign = state.alignment==='right' ? 'right':'left';
+  const x = state.alignment==='right' ? W-72 : 72;
+  if(watermark) ctx.fillText('storycraft.app', x, H-64);
+  if(brand){
+    ctx.beginPath();
+    const bx = state.alignment==='right' ? 72 : W-72;
+    ctx.arc(bx, H-72, 16, 0, Math.PI*2);
+    ctx.fillStyle = state.accent || theme.accentDefault; ctx.fill();
+  }
+  ctx.restore();
+}
+
+function layoutMeeting(ctx,W,H,theme,texts){
+  theme.bg(ctx,W,H);
+  const accent = state.accent || theme.accentDefault;
+  const align = state.alignment;
+  const tx = align==='right' ? W-84 : 84;
+  ctx.textAlign = align;
+  ctx.fillStyle = theme.textDim;
+  ctx.font='500 32px Inter, sans-serif';
+  ctx.fillText(texts.title, tx, H*0.30);
+  ctx.fillStyle = theme.text;
+  ctx.font='600 64px Fraunces, serif';
+  ctx.fillText(texts.subtitle, tx, H*0.30+72);
+
+  ctx.font='600 168px Fraunces, serif';
+  ctx.fillStyle = accent;
+  ctx.fillText(texts.value, tx, H*0.52);
+
+  ctx.font='400 34px Inter, sans-serif';
+  ctx.fillStyle = theme.textDim;
+  ctx.fillText(texts.caption, tx, H*0.52+64);
+
+  waveform(ctx, 84, H*0.68, W-168, 34, accent, .85, 1.2);
+  bars(ctx, 84, H*0.74, W-168, theme.text, .16, 2.4);
+  roundRect(ctx, 60, 60, W-120, H-120, state.cornerRadius);
+  ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore();
+  drawFooter(ctx,W,H,theme,texts,state.watermark,state.brand);
+}
+
+function layoutGrid(ctx,W,H,theme,texts){
+  theme.bg(ctx,W,H);
+  const accent = state.accent || theme.accentDefault;
+  ctx.textAlign='right';
+  ctx.fillStyle=theme.textDim; ctx.font='500 30px Inter, sans-serif';
+  ctx.fillText(texts.subtitle, W-84, 190);
+  ctx.fillStyle=theme.text; ctx.font='600 68px Fraunces, serif';
+  ctx.fillText(texts.title, W-84, 260);
+
+  const stats = [
+    {n:'128', l:'قسمت منتشر شده'},
+    {n:'46', l:'ساعت گفتگو'},
+    {n:'12.4K', l:'شنونده فعال'},
+    {n:'92٪', l:'نرخ تکمیل'}
+  ];
+  const gx=84, gy=380, gw=W-168, gap=24;
+  const cw=(gw-gap)/2, ch=280;
+  stats.forEach((s,i)=>{
+    const cx = gx + (i%2)*(cw+gap);
+    const cy = gy + Math.floor(i/2)*(ch+gap);
+    ctx.save();
+    roundRect(ctx,cx,cy,cw,ch,state.cornerRadius);
+    ctx.fillStyle = theme.name==='Editorial Paper' ? 'rgba(36,31,43,0.04)' : 'rgba(255,255,255,0.045)';
+    ctx.fill();
+    ctx.strokeStyle = theme.name==='Editorial Paper' ? 'rgba(36,31,43,0.12)' : 'rgba(255,255,255,0.10)';
+    ctx.lineWidth=1.5; ctx.stroke();
+    ctx.textAlign='right';
+    ctx.fillStyle = accent; ctx.font='600 84px Fraunces, serif';
+    ctx.fillText(s.n, cx+cw-28, cy+140);
+    ctx.fillStyle = theme.textDim; ctx.font='500 26px Inter, sans-serif';
+    ctx.fillText(s.l, cx+cw-28, cy+188);
+    ctx.restore();
+  });
+  waveform(ctx, 84, H-220, W-168, 22, accent, .5, .8);
+  drawFooter(ctx,W,H,theme,texts,state.watermark,state.brand);
+}
+
+function layoutRing(ctx,W,H,theme,texts){
+  theme.bg(ctx,W,H);
+  const accent = state.accent || theme.accentDefault;
+  ctx.textAlign='center';
+  ctx.fillStyle=theme.textDim; ctx.font='500 30px Inter, sans-serif';
+  ctx.fillText(texts.title, W/2, 200);
+  ctx.fillStyle=theme.text; ctx.font='600 54px Fraunces, serif';
+  ctx.fillText(texts.subtitle, W/2, 258);
+
+  const cx=W/2, cy=H*0.48, r=290;
+  const pct = parseFloat(texts.value)/100 || 0.64;
+  ctx.save();
+  ctx.lineWidth=34; ctx.lineCap='round';
+  ctx.strokeStyle = theme.name==='Editorial Paper' ? 'rgba(36,31,43,0.10)' : 'rgba(255,255,255,0.10)';
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = accent;
+  ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI/2, -Math.PI/2 + Math.PI*2*pct); ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle=theme.text; ctx.font='600 148px Fraunces, serif';
+  ctx.fillText(texts.value, cx, cy+50);
+
+  ctx.fillStyle=theme.textDim; ctx.font='400 32px Inter, sans-serif';
+  ctx.fillText(texts.caption, cx, cy+r+90);
+  drawFooter(ctx,W,H,theme,texts,state.watermark,state.brand);
+}
+
+function layoutTimeline(ctx,W,H,theme,texts){
+  theme.bg(ctx,W,H);
+  const accent = state.accent || theme.accentDefault;
+  ctx.textAlign='right';
+  ctx.fillStyle=theme.textDim; ctx.font='500 30px Inter, sans-serif';
+  ctx.fillText(texts.subtitle, W-84, 190);
+  ctx.fillStyle=theme.text; ctx.font='600 68px Fraunces, serif';
+  ctx.fillText(texts.title, W-84, 260);
+
+  const items = [
+    {t:'شروع فصل', d:'فروردین ۱۴۰۳'},
+    {t:'قسمت صدم', d:'مرداد ۱۴۰۳'},
+    {t:'رکورد شنونده', d:'آبان ۱۴۰۳'},
+    {t:'همکاری ویژه', d:'اکنون'}
+  ];
+  const lx = W-120, top=400, gap=190;
+  ctx.save();
+  ctx.strokeStyle = theme.name==='Editorial Paper' ? 'rgba(36,31,43,0.18)' : 'rgba(255,255,255,0.16)';
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(lx, top); ctx.lineTo(lx, top+gap*(items.length-1)); ctx.stroke();
+  items.forEach((it,i)=>{
+    const y = top + i*gap;
+    ctx.beginPath(); ctx.arc(lx,y,12,0,Math.PI*2);
+    ctx.fillStyle = i===items.length-1 ? accent : theme.textDim; ctx.fill();
+    ctx.textAlign='right'; ctx.fillStyle=theme.text; ctx.font='600 40px Fraunces, serif';
+    ctx.fillText(it.t, lx-40, y+6);
+    ctx.fillStyle=theme.textDim; ctx.font='400 26px Inter, sans-serif';
+    ctx.fillText(it.d, lx-40, y+44);
+  });
+  ctx.restore();
+  drawFooter(ctx,W,H,theme,texts,state.watermark,state.brand);
+}
+
+function layoutQuote(ctx,W,H,theme,texts){
+  theme.bg(ctx,W,H);
+  const accent = state.accent || theme.accentDefault;
+  ctx.textAlign='center';
+  ctx.font='600 200px Fraunces, serif'; ctx.fillStyle=accent; ctx.globalAlpha=.5;
+  ctx.fillText('“', W/2, 400); ctx.globalAlpha=1;
+
+  ctx.fillStyle=theme.text; ctx.font='600 76px Fraunces, serif';
+  wrapText(ctx, texts.title.replace(/[«»]/g,''), W/2, H*0.46, W-200, 90, 'center');
+
+  ctx.fillStyle=theme.textDim; ctx.font='500 30px Inter, sans-serif';
+  ctx.fillText(texts.subtitle, W/2, H*0.72);
+
+  waveform(ctx, 140, H*0.80, W-280, 26, accent, .6, 3.1);
+  drawFooter(ctx,W,H,theme,texts,state.watermark,state.brand);
+}
+
+function layoutBlank(ctx,W,H,theme,texts){
+  theme.bg(ctx,W,H);
+  const accent = state.accent || theme.accentDefault;
+  ctx.textAlign = state.alignment;
+  const tx = state.alignment==='right' ? W-84 : 84;
+  ctx.fillStyle=theme.textDim; ctx.font='500 30px Inter, sans-serif';
+  ctx.fillText(texts.subtitle, tx, H*0.42);
+  ctx.fillStyle=theme.text; ctx.font='600 74px Fraunces, serif';
+  wrapText(ctx, texts.title, tx, H*0.42+70, W-168, 84, state.alignment);
+  ctx.fillStyle=accent; ctx.font='500 32px Inter, sans-serif';
+  ctx.fillText(texts.caption, tx, H*0.62);
+  roundRect(ctx,60,60,W-120,H-120,state.cornerRadius);
+  ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore();
+  drawFooter(ctx,W,H,theme,texts,state.watermark,state.brand);
+}
+
+const LAYOUTS = { meeting:layoutMeeting, grid:layoutGrid, ring:layoutRing, timeline:layoutTimeline, quote:layoutQuote, blank:layoutBlank, neonSplit:layoutNeonSplit, cover:layoutCover, mosaic:layoutMosaic, cinematic:layoutCinematic, monogram:layoutMonogram, postcard:layoutPostcard };
+
+function render(ctx, W, H, tmpl, texts, ovr){
+  const theme = THEMES[ovr && ovr.theme || tmpl.theme];
+  ctx.clearRect(0,0,W,H);
+  LAYOUTS[tmpl.layout](ctx, W, H, theme, texts);
+}
+
+/* ===================== UI BUILD ===================== */
+
+const sidebarEl = document.getElementById('sidebar');
+function buildSidebar(){
+  let html = '<h4>دسته‌بندی خروجی</h4>';
+  CATEGORIES.forEach(c=>{
+    const n = TEMPLATES.filter(t=>t.cat===c.id).length;
+    html += `<div class="cat ${c.id===state.category?'active':''}" data-cat="${c.id}">
+      <div class="icon"><svg viewBox="0 0 24 24">${ICONS[c.icon]}</svg></div>
+      <div class="label">${c.label}</div><div class="count">${n}</div></div>`;
+  });
+  sidebarEl.innerHTML = html;
+  sidebarEl.querySelectorAll('.cat').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      state.category = el.dataset.cat;
+      const cat = CATEGORIES.find(c=>c.id===state.category);
+      state.texts = {...cat.field};
+      const first = TEMPLATES.find(t=>t.cat===state.category);
+      if(first){ state.templateId = first.id; state.theme = first.theme; }
+      buildSidebar(); buildGallery(); buildCustomize(); draw();
+    });
+  });
+}
+
+// Mobile bottom navigation handler
+function buildMobileNav(){
+  const navItems = document.querySelectorAll('.nav-item');
+  const mobileSheet = document.getElementById('mobile-sheet');
+  const sheetContent = document.getElementById('sheet-content');
+  
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      // Update active state
+      navItems.forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      
+      const navType = item.dataset.nav;
+      
+      // Generate content based on navigation type
+      let content = '';
+      if(navType === 'categories') {
+        content = '<h4 style="margin-bottom:16px;">دسته‌بندی خروجی</h4>';
+        CATEGORIES.forEach(c => {
+          const n = TEMPLATES.filter(t=>t.cat===c.id).length;
+          content += `<div class="cat ${c.id===state.category?'active':''}" data-cat="${c.id}">
+            <div class="icon"><svg viewBox="0 0 24 24">${ICONS[c.icon]}</svg></div>
+            <div class="label">${c.label}</div><div class="count">${n}</div></div>`;
+        });
+      } else if(navType === 'gallery') {
+        content = buildGalleryContent();
+      } else if(navType === 'customize') {
+        content = buildCustomizeContent();
+      }
+      
+      sheetContent.innerHTML = content;
+      
+      // Add event listeners for the new content
+      if(navType === 'categories') {
+        sheetContent.querySelectorAll('.cat').forEach(el=>{
+          el.addEventListener('click', ()=>{
+            state.category = el.dataset.cat;
+            const cat = CATEGORIES.find(c=>c.id===state.category);
+            state.texts = {...cat.field};
+            const first = TEMPLATES.find(t=>t.cat===state.category);
+            if(first){ state.templateId = first.id; state.theme = first.theme; }
+            buildMobileNav(); draw();
+          });
+        });
+      } else if(navType === 'gallery') {
+        attachGalleryEvents();
+      } else if(navType === 'customize') {
+        attachCustomizeEvents();
+      }
+      
+      // Show sheet
+      mobileSheet.classList.add('open');
+    });
+  });
+  
+  // Close sheet when clicking handle or outside
+  const handle = document.querySelector('.sheet-handle');
+  if(handle) {
+    handle.addEventListener('click', () => {
+      mobileSheet.classList.remove('open');
+    });
+  }
+  
+  // Touch gestures for sheet
+  let startY = 0;
+  let currentY = 0;
+  
+  if(mobileSheet) {
+    mobileSheet.addEventListener('touchstart', e => {
+      startY = e.touches[0].clientY;
+    });
+    
+    mobileSheet.addEventListener('touchmove', e => {
+      currentY = e.touches[0].clientY;
+      const diff = currentY - startY;
+      
+      if(diff > 50) { // Swipe down threshold
+        mobileSheet.classList.remove('open');
+      }
+    });
+  }
+}
+
+const galleryEl = document.getElementById('panel-gallery');
+function thumbCanvas(tmpl){
+  const c = document.createElement('canvas');
+  c.width=240; c.height=427;
+  const ctx = c.getContext('2d');
+  const cat = CATEGORIES.find(x=>x.id===tmpl.cat);
+  render(ctx, 240, 427, tmpl, cat.field, {theme:tmpl.theme});
+  return c;
+}
+
+function buildGalleryContent(){
+  const groups = {};
+  TEMPLATES.forEach(t=>{ const g=THEMES[t.theme].group; (groups[g]=groups[g]||[]).push(t); });
+  let content = '';
+  Object.entries(groups).forEach(([gname, items])=>{
+    content += `<div class="gallery-group">
+      <div class="gname">${gname}</div>
+      <div class="gallery-grid">`;
+    items.forEach(t=>{
+      content += `<div class="tmpl-card ${t.id===state.templateId?'active':''}" data-template="${t.id}">
+        <canvas width="240" height="427" data-template-id="${t.id}"></canvas>
+        <div class="tname">${t.name}</div>
+      </div>`;
+    });
+    content += '</div></div>';
+  });
+  return content;
+}
+
+function attachGalleryEvents(){
+  // Render thumbnails after DOM is ready
+  setTimeout(() => {
+    document.querySelectorAll('[data-template-id]').forEach(canvas => {
+      const tmplId = canvas.dataset.templateId;
+      const tmpl = TEMPLATES.find(t => t.id === tmplId);
+      if(tmpl) {
+        const ctx = canvas.getContext('2d');
+        const cat = CATEGORIES.find(x=>x.id===tmpl.cat);
+        render(ctx, 240, 427, tmpl, cat.field, {theme:tmpl.theme});
+      }
+    });
+  }, 10);
+  
+  document.querySelectorAll('.tmpl-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const tmplId = card.dataset.template;
+      const tmpl = TEMPLATES.find(t => t.id === tmplId);
+      if(tmpl) {
+        state.templateId = tmpl.id; 
+        state.theme = tmpl.theme; 
+        state.category = tmpl.cat;
+        const cat = CATEGORIES.find(c=>c.id===tmpl.cat);
+        state.texts = {...cat.field};
+        buildMobileNav(); 
+        draw();
+      }
+    });
+  });
+}
+
+function buildGallery(){
+  const groups = {};
+  TEMPLATES.forEach(t=>{ const g=THEMES[t.theme].group; (groups[g]=groups[g]||[]).push(t); });
+  galleryEl.innerHTML='';
+  Object.entries(groups).forEach(([gname, items])=>{
+    const wrap = document.createElement('div'); wrap.className='gallery-group';
+    wrap.innerHTML = `<div class="gname">${gname}</div><div class="gallery-grid"></div>`;
+    const grid = wrap.querySelector('.gallery-grid');
+    items.forEach(t=>{
+      const card = document.createElement('div');
+      card.className = 'tmpl-card' + (t.id===state.templateId?' active':'');
+      card.appendChild(thumbCanvas(t));
+      const label = document.createElement('div'); label.className='tname'; label.textContent=t.name;
+      card.appendChild(label);
+      card.addEventListener('click', ()=>{
+        state.templateId = t.id; state.theme = t.theme; state.category = t.cat;
+        const cat = CATEGORIES.find(c=>c.id===t.cat);
+        state.texts = {...cat.field};
+        buildSidebar(); buildGallery(); buildCustomize(); draw();
+      });
+      grid.appendChild(card);
+    });
+    galleryEl.appendChild(wrap);
+  });
+}
+
+const customizeEl = document.getElementById('panel-customize');
+
+function buildCustomizeContent(){
+  const themeKeys = Object.keys(THEMES);
+  return `
+    <div class="field">
+      <label>تم بصری</label>
+      <div class="theme-row">
+        ${themeKeys.map(k=>{
+          const th=THEMES[k];
+          return `<div class="theme-opt ${state.theme===k?'active':''}" data-theme="${k}">
+            <div class="swab" style="background:linear-gradient(135deg,${th.swatch[0]},${th.swatch[1]})"></div>${th.name}</div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="field">
+      <label>رنگ تاکیدی</label>
+      <div class="swatches" id="accent-swatches">
+        ${['#C9A46B','#E2775A','#8FE3D0','#B27CFF','#F2C6C6','#8FB4E3'].map(c=>`<span class="swatch ${state.accent===c?'active':''}" style="background:${c}" data-c="${c}"></span>`).join('')}
+      </div>
+    </div>
+    <div class="field">
+      <label>عنوان</label>
+      <input type="text" id="in-title" value="${state.texts.title||''}">
+    </div>
+    <div class="field">
+      <label>زیرعنوان</label>
+      <input type="text" id="in-subtitle" value="${state.texts.subtitle||''}">
+    </div>
+    ${state.texts.value!==undefined && state.texts.value!=='' ? `<div class="field"><label>مقدار / عدد اصلی</label><input type="text" id="in-value" value="${state.texts.value||''}"></div>`:''}
+    ${state.texts.caption!==undefined && state.texts.caption!=='' ? `<div class="field"><label>توضیح کوتاه</label><input type="text" id="in-caption" value="${state.texts.caption||''}"></div>`:''}
+    <div class="field">
+      <label>چیدمان متن</label>
+      <div class="align-row">
+        <div class="align-btn ${state.alignment==='right'?'active':''}" data-align="right">راست</div>
+        <div class="align-btn ${state.alignment==='left'?'active':''}" data-align="left">چپ</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>گردی گوشه‌ها <span class="rangeval">${state.cornerRadius}px</span></label>
+      <input type="range" id="rng-radius" min="0" max="60" value="${state.cornerRadius}">
+    </div>
+    <div class="field">
+      <label>شدت سایه <span class="rangeval">${state.shadowIntensity}%</span></label>
+      <input type="range" id="rng-shadow" min="0" max="100" value="${state.shadowIntensity}">
+    </div>
+    <div class="field row2"><label style="margin:0">واترمارک</label><div class="toggle ${state.watermark?'on':''}" id="tg-watermark"><div class="dot"></div></div></div>
+    <div class="field row2"><label style="margin:0">لوگوی برند</label><div class="toggle ${state.brand?'on':''}" id="tg-brand"><div class="dot"></div></div></div>
+  `;
+}
+
+function attachCustomizeEvents(){
+  const container = document.getElementById('sheet-content');
+  
+  container.querySelectorAll('.theme-opt').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.theme = el.dataset.theme; updateMobileContent(); draw(); });
+  });
+  container.querySelectorAll('.swatch').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.accent = el.dataset.c; updateMobileContent(); draw(); });
+  });
+  const t=container.querySelector('#in-title'); if(t) t.addEventListener('input', e=>{ state.texts.title=e.target.value; draw(); });
+  const s=container.querySelector('#in-subtitle'); if(s) s.addEventListener('input', e=>{ state.texts.subtitle=e.target.value; draw(); });
+  const v=container.querySelector('#in-value'); if(v) v.addEventListener('input', e=>{ state.texts.value=e.target.value; draw(); });
+  const c=container.querySelector('#in-caption'); if(c) c.addEventListener('input', e=>{ state.texts.caption=e.target.value; draw(); });
+  container.querySelectorAll('.align-btn').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.alignment=el.dataset.align; updateMobileContent(); draw(); });
+  });
+  const rRadius = container.querySelector('#rng-radius');
+  if(rRadius) rRadius.addEventListener('input', e=>{ state.cornerRadius=+e.target.value; updateMobileContent(); draw(); });
+  const rShadow = container.querySelector('#rng-shadow');
+  if(rShadow) rShadow.addEventListener('input', e=>{ state.shadowIntensity=+e.target.value; updateMobileContent(); draw(); });
+  const tWatermark = container.querySelector('#tg-watermark');
+  if(tWatermark) tWatermark.addEventListener('click', ()=>{ state.watermark=!state.watermark; updateMobileContent(); draw(); });
+  const tBrand = container.querySelector('#tg-brand');
+  if(tBrand) tBrand.addEventListener('click', ()=>{ state.brand=!state.brand; updateMobileContent(); draw(); });
+}
+
+function updateMobileContent(){
+  const activeNav = document.querySelector('.nav-item.active');
+  if(activeNav) {
+    const navType = activeNav.dataset.nav;
+    const sheetContent = document.getElementById('sheet-content');
+    
+    if(navType === 'customize' && sheetContent) {
+      sheetContent.innerHTML = buildCustomizeContent();
+      attachCustomizeEvents();
+    }
+  }
+}
+
+function buildCustomize(){
+  const themeKeys = Object.keys(THEMES);
+  customizeEl.innerHTML = `
+    <div class="field">
+      <label>تم بصری</label>
+      <div class="theme-row">
+        ${themeKeys.map(k=>{
+          const th=THEMES[k];
+          return `<div class="theme-opt ${state.theme===k?'active':''}" data-theme="${k}">
+            <div class="swab" style="background:linear-gradient(135deg,${th.swatch[0]},${th.swatch[1]})"></div>${th.name}</div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="field">
+      <label>رنگ تاکیدی</label>
+      <div class="swatches" id="accent-swatches">
+        ${['#C9A46B','#E2775A','#8FE3D0','#B27CFF','#F2C6C6','#8FB4E3'].map(c=>`<span class="swatch ${state.accent===c?'active':''}" style="background:${c}" data-c="${c}"></span>`).join('')}
+      </div>
+    </div>
+    <div class="field">
+      <label>عنوان</label>
+      <input type="text" id="in-title" value="${state.texts.title||''}">
+    </div>
+    <div class="field">
+      <label>زیرعنوان</label>
+      <input type="text" id="in-subtitle" value="${state.texts.subtitle||''}">
+    </div>
+    ${state.texts.value!==undefined && state.texts.value!=='' ? `<div class="field"><label>مقدار / عدد اصلی</label><input type="text" id="in-value" value="${state.texts.value||''}"></div>`:''}
+    ${state.texts.caption!==undefined && state.texts.caption!=='' ? `<div class="field"><label>توضیح کوتاه</label><input type="text" id="in-caption" value="${state.texts.caption||''}"></div>`:''}
+    <div class="field">
+      <label>چیدمان متن</label>
+      <div class="align-row">
+        <div class="align-btn ${state.alignment==='right'?'active':''}" data-align="right">راست</div>
+        <div class="align-btn ${state.alignment==='left'?'active':''}" data-align="left">چپ</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>گردی گوشه‌ها <span class="rangeval">${state.cornerRadius}px</span></label>
+      <input type="range" id="rng-radius" min="0" max="60" value="${state.cornerRadius}">
+    </div>
+    <div class="field">
+      <label>شدت سایه <span class="rangeval">${state.shadowIntensity}%</span></label>
+      <input type="range" id="rng-shadow" min="0" max="100" value="${state.shadowIntensity}">
+    </div>
+    <div class="field row2"><label style="margin:0">واترمارک</label><div class="toggle ${state.watermark?'on':''}" id="tg-watermark"><div class="dot"></div></div></div>
+    <div class="field row2"><label style="margin:0">لوگوی برند</label><div class="toggle ${state.brand?'on':''}" id="tg-brand"><div class="dot"></div></div></div>
+  `;
+
+  customizeEl.querySelectorAll('.theme-opt').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.theme = el.dataset.theme; buildCustomize(); draw(); });
+  });
+  customizeEl.querySelectorAll('.swatch').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.accent = el.dataset.c; buildCustomize(); draw(); });
+  });
+  const t=document.getElementById('in-title'); if(t) t.addEventListener('input', e=>{ state.texts.title=e.target.value; draw(); });
+  const s=document.getElementById('in-subtitle'); if(s) s.addEventListener('input', e=>{ state.texts.subtitle=e.target.value; draw(); });
+  const v=document.getElementById('in-value'); if(v) v.addEventListener('input', e=>{ state.texts.value=e.target.value; draw(); });
+  const c=document.getElementById('in-caption'); if(c) c.addEventListener('input', e=>{ state.texts.caption=e.target.value; draw(); });
+  customizeEl.querySelectorAll('.align-btn').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.alignment=el.dataset.align; buildCustomize(); draw(); });
+  });
+  document.getElementById('rng-radius').addEventListener('input', e=>{ state.cornerRadius=+e.target.value; buildCustomize(); draw(); });
+  document.getElementById('rng-shadow').addEventListener('input', e=>{ state.shadowIntensity=+e.target.value; buildCustomize(); draw(); });
+  document.getElementById('tg-watermark').addEventListener('click', ()=>{ state.watermark=!state.watermark; buildCustomize(); draw(); });
+  document.getElementById('tg-brand').addEventListener('click', ()=>{ state.brand=!state.brand; buildCustomize(); draw(); });
+}
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+/* ===================== MAIN CANVAS ===================== */
+
+const stageCanvas = document.getElementById('stage-canvas');
+const stageCtx = stageCanvas.getContext('2d');
+const phone = document.getElementById('phone');
+
+function currentTemplate(){ return TEMPLATES.find(t=>t.id===state.templateId); }
+
+function draw(){
+  stageCanvas.width = format[0]; stageCanvas.height = format[1];
+  const tmpl = currentTemplate();
+  render(stageCtx, format[0], format[1], tmpl, state.texts, {theme:state.theme});
+  document.getElementById('tmpl-caption').textContent = tmpl.name + ' · ' + THEMES[state.theme].name;
+  layoutStage();
+}
+
+function layoutStage(){
+  const maxH = Math.min(window.innerHeight - 200, 660) * zoom;
+  const ratio = format[0]/format[1];
+  let h = maxH, w = h*ratio;
+  stageCanvas.style.width = w+'px';
+  stageCanvas.style.height = h+'px';
+  phone.style.width = (w+20)+'px';
+  phone.style.height = (h+20)+'px';
+}
+
+document.getElementById('fmt-select').addEventListener('change', e=>{
+  format = FORMATS[e.target.value];
+  draw();
+});
+document.getElementById('zoom-in').addEventListener('click', ()=>{ zoom=Math.min(1.3,zoom+0.1); layoutStage(); });
+document.getElementById('zoom-out').addEventListener('click', ()=>{ zoom=Math.max(0.6,zoom-0.1); layoutStage(); });
+window.addEventListener('resize', layoutStage);
+
+document.getElementById('export-btn').addEventListener('click', ()=>{
+  const tmpl = currentTemplate();
+  const off = document.createElement('canvas');
+  off.width = format[0]; off.height = format[1];
+  const octx = off.getContext('2d');
+  render(octx, format[0], format[1], tmpl, state.texts, {theme:state.theme});
+  const link = document.createElement('a');
+  link.download = tmpl.id + '-' + format[0] + 'x' + format[1] + '.png';
+  link.href = off.toDataURL('image/png');
+  link.click();
+});
+
+/* ===================== INIT ===================== */
+buildSidebar();
+buildGallery();
+buildCustomize();
+buildMobileNav();
+draw();
+</script>
+</body>
+</html>
