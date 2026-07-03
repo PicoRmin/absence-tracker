@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Storycraft — Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark"></div>
+        <div class="name">Story<b>craft</b></div>
+      </div>
+      <div class="top-actions">
+        <select class="fmt-select" id="fmt-select">
+          <option value="1080x1920" selected>استوری اینستاگرام · 1080×1920</option>
+          <option value="1080x1350">پست اینستاگرام · 1080×1350</option>
+          <option value="1080x1080">مربع · 1080×1080</option>
+          <option value="1200x630">لینکدین / X · 1200×630</option>
+        </select>
+        <button class="export-btn" id="export-btn">دانلود PNG</button>
+      </div>
+    </header>
+
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="center">
+      <div class="stage">
+        <div class="zoom-col">
+          <button type="button" class="zoom-btn" id="zoom-in">+</button>
+          <button type="button" class="zoom-btn" id="zoom-out">–</button>
+        </div>
+        <div class="phone" id="phone">
+          <div class="notch"></div>
+          <canvas id="stage-canvas" width="1080" height="1920"></canvas>
+        </div>
+      </div>
+      <div class="preview-caption">پیش‌نمایش زنده · <b id="tmpl-caption">—</b></div>
+    </main>
+
+    <section class="rightcol">
+      <div class="tabs">
+        <button class="tab active" data-tab="gallery">گالری قالب‌ها</button>
+        <button class="tab" data-tab="customize">شخصی‌سازی</button>
+      </div>
+      <div class="panel active" id="panel-gallery"></div>
+      <div class="panel" id="panel-customize"></div>
+    </section>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav">
+    <div class="nav-items">
+      <button class="nav-item active" data-nav="categories">
+        <span class="nav-icon">☰</span>
+        <span>دسته‌بندی</span>
+      </button>
+      <button class="nav-item" data-nav="gallery">
+        <span class="nav-icon">🖼</span>
+        <span>گالری</span>
+      </button>
+      <button class="nav-item" data-nav="customize">
+        <span class="nav-icon">⚙️</span>
+        <span>تنظیمات</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-sheet" id="mobile-sheet">
+    <div class="sheet-handle" id="sheet-handle"></div>
+    <div class="sheet-content" id="sheet-content"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
