@@ -10,6 +10,8 @@ const state = {
   alignment: 'right',
   watermark: true,
   brand: false,
+  messageCount: 0,
+  messageStart: Date.now(),
   texts: {}
 };
 
@@ -55,7 +57,30 @@ function applySavedState(){
   if(saved.alignment) state.alignment = saved.alignment;
   if(typeof saved.watermark === 'boolean') state.watermark = saved.watermark;
   if(typeof saved.brand === 'boolean') state.brand = saved.brand;
+  if(typeof saved.messageCount === 'number') state.messageCount = saved.messageCount;
+  if(typeof saved.messageStart === 'number') state.messageStart = saved.messageStart;
   if(saved.texts) state.texts = saved.texts;
+}
+
+function formatDuration(ms){
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const minutes = String(Math.floor(totalSeconds / 60)).padStart(2,'0');
+  const seconds = String(totalSeconds % 60).padStart(2,'0');
+  return `${minutes}:${seconds}`;
+}
+
+function updateMessageStatus(){
+  const countEl = document.getElementById('message-count');
+  const elapsedEl = document.getElementById('message-elapsed');
+  if(countEl) countEl.textContent = state.messageCount;
+  if(elapsedEl) elapsedEl.textContent = formatDuration(Date.now() - state.messageStart);
+}
+
+function resetMessageTimer(){
+  state.messageCount += 1;
+  state.messageStart = Date.now();
+  saveState();
+  updateMessageStatus();
 }
 
 function currentTemplate(){
@@ -356,6 +381,9 @@ function layoutStage(){
 }
 
 function initEvents(){
+  document.getElementById('message-btn').addEventListener('click', ()=>{
+    resetMessageTimer();
+  });
   document.getElementById('fmt-select').addEventListener('change', e=>{
     format = FORMATS[e.target.value];
     draw();
@@ -364,6 +392,8 @@ function initEvents(){
   document.getElementById('zoom-in').addEventListener('click', ()=>{ zoom=Math.min(1.3,zoom+0.1); layoutStage(); });
   document.getElementById('zoom-out').addEventListener('click', ()=>{ zoom=Math.max(0.6,zoom-0.1); layoutStage(); });
   window.addEventListener('resize', layoutStage);
+  setInterval(updateMessageStatus, 1000);
+  updateMessageStatus();
   document.getElementById('export-btn').addEventListener('click', ()=>{
     const tmpl = currentTemplate();
     const off = document.createElement('canvas');

@@ -1,0 +1,320 @@
+Professional Product Design Prompt
+Project Overview
+Design a premium mobile application called Memory Timeline / Absence Tracker.
+This is not a simple countdown timer.
+It is an emotional timeline that combines the concepts of a time tracker, personal journal, calendar, life dashboard, memory archive, and emotional analytics into one elegant experience.
+The application’s core philosophy is:
+“Time should not only be counted—it should be experienced.”
+Every time the user opens the app, they should feel the passage of time from multiple perspectives: chronological, emotional, seasonal, astronomical, and personal.
+The design language should be calm, minimal, cinematic, elegant, and emotionally immersive without becoming melodramatic.
+________________________________________
+Design Principles
+•	Minimal UI
+•	Premium Apple-level aesthetics
+•	Smooth animations (60 FPS)
+•	Soft gradients
+•	Elegant typography
+•	Emotional storytelling through data
+•	Dark mode first
+•	Glassmorphism used subtly
+•	Highly polished micro-interactions
+•	Beautiful empty states
+•	No visual clutter
+The experience should feel closer to an interactive memory museum than a productivity app.
+________________________________________
+Home Screen
+The first screen should immediately communicate the passage of time.
+Large animated timer:
+Since the last meeting
+412 Days
+17 Hours
+43 Minutes
+12 Seconds
+The timer updates every second.
+Below the main timer, create multiple information cards.
+________________________________________
+Time Perspectives Card
+Display elapsed time in multiple human-readable forms.
+Examples:
+• 412 Days
+• 58 Weeks
+• 13 Months
+• 1 Year + 47 Days
+• 4 Seasons
+• 9,888 Hours
+• 593,280 Minutes
+• 35,596,800 Seconds
+Make the presentation visually elegant rather than table-like.
+________________________________________
+“Without…” Cards
+Separate emotional counters showing how long it has been since different kinds of interactions.
+Examples:
+👀 Haven’t seen their photo
+412 Days
+🎤 Haven’t heard their voice
+412 Days
+💬 Haven’t exchanged messages
+412 Days
+🌙 Haven’t said “Good Night”
+412 Nights
+☀️ Haven’t said “Good Morning”
+412 Mornings
+❤️ Haven’t said “I Love You”
+412 Days
+Allow users to enable, disable, rename, or create custom counters.
+________________________________________
+Things That Happened During Their Absence
+Instead of showing only elapsed time, show what has happened while they were away.
+Examples:
+🌅 412 Sunrises
+🌇 411 Sunsets
+🌙 412 Nights
+☀️ 412 Mornings
+🍃 3 Springs
+☀️ 3 Summers
+🍂 2 Autumns
+❄️ 3 Winters
+Automatically calculate these based on dates.
+________________________________________
+Seasonal Timeline
+Visual timeline of seasons that have passed.
+Example:
+Spring ✓
+Summer ✓
+Autumn ✓
+Winter ✓
+Or for longer periods:
+Spring ×3
+Summer ×3
+Autumn ×2
+Winter ×3
+Beautiful illustrated icons for every season.
+________________________________________
+Monthly Progress
+Display all months of the year.
+Completed months receive a subtle checkmark.
+Example:
+✓ January
+✓ February
+✓ March
+…
+December
+Optionally support different calendar systems.
+________________________________________
+Missed Events
+Automatically calculate special occasions that occurred during the absence.
+Examples:
+🎂 My Birthday
+Occurred 1 time
+🎂 Their Birthday
+Occurred 1 time
+🎄 New Year
+Occurred 2 times
+🕯 Yalda Night
+Occurred 1 time
+🌙 Eid al-Fitr
+Occurred 1 time
+🕌 Eid al-Adha
+Occurred 1 time
+❤️ Valentine’s Day
+Occurred 1 time
+💐 Sepandarmazgan
+Occurred 1 time
+🎆 Chaharshanbe Suri
+Occurred 1 time
+🎉 Sizdah Bedar
+Occurred 1 time
+Support multiple countries and calendars.
+________________________________________
+Emotional Statistics
+Manual emotional tracking.
+Examples:
+How many times did I want to send a message?
+37
+How many drafts did I delete?
+91
+How many times did I search their name?
+…
+How many times did I open their profile?
+…
+How many memories came back today?
+…
+Allow users to define their own emotional counters.
+Provide charts showing trends over time.
+________________________________________
+Astronomical Statistics
+Present the passage of time from a cosmic perspective.
+Examples:
+🌍 Earth rotated 412 times.
+☀️ Earth orbited the Sun 1.13 times.
+🌕 The Moon completed 13 full cycles.
+🪐 Mercury orbited the Sun 4 times.
+🌌 Billions of stars moved through space while time continued.
+Display these with elegant scientific illustrations.
+________________________________________
+Interactive Timeline
+Horizontal animated timeline.
+Beginning of absence
+────────●────────
+Week 1
+Month 1
+100 Days
+200 Days
+300 Days
+Today
+Milestones should unlock animations and optional reflections.
+________________________________________
+Daily Reflection
+Generate one emotional sentence each day.
+Examples:
+“Today marks the 412th day since you last heard their voice.”
+“Four seasons arrived and departed. Their absence remained.”
+“The world kept moving. Time kept counting.”
+Allow AI-generated daily reflections.
+________________________________________
+Memory Journal
+Users can attach memories to any day.
+Each entry supports:
+• Text
+• Photos
+• Videos
+• Voice recordings
+• Mood
+• Weather
+• Location
+• Tags
+Display entries on the timeline.
+________________________________________
+Secure Memory Vault
+Private gallery protected with:
+• Face ID
+• Fingerprint
+• Passcode
+Store:
+Photos
+Videos
+Voice messages
+Letters
+Screenshots
+Notes
+________________________________________
+Last Memory Dashboard
+Dedicated section containing:
+Last Meeting
+Last Call
+Last Message
+Last Voice Note
+Last Photo Together
+Last Shared Location
+Each entry links to related memories.
+________________________________________
+Location Memory
+Interactive map showing:
+Last meeting place
+Important shared places
+Timeline of visited locations
+Option to add notes.
+________________________________________
+Countdown Features
+Support forward-looking counters.
+Examples:
+Days until their birthday
+Days until anniversary
+Days until reunion
+Days until next important date
+________________________________________
+Visual Analytics
+Include premium dashboards.
+Charts:
+Emotional activity
+Mood over time
+Journal frequency
+Memory creation
+Custom counters
+Milestones
+Use elegant animations.
+________________________________________
+Widgets
+Provide home screen widgets for Android and iOS.
+Sizes:
+Small
+Medium
+Large
+Lock Screen Widgets
+Examples:
+Current timer
+Today’s quote
+Next anniversary
+Emotional counter
+________________________________________
+Notifications
+Gentle reminders.
+Examples:
+“Today marks one year.”
+“Spring has arrived.”
+“You haven’t written a memory in two weeks.”
+Allow complete customization.
+________________________________________
+Cloud Synchronization
+Support:
+Cloud backup
+Multi-device sync
+Encrypted storage
+Offline mode
+Automatic restore
+________________________________________
+Personalization
+Themes
+Accent colors
+Typography
+Background gradients
+Animated backgrounds
+Seasonal themes
+Custom icons
+________________________________________
+Accessibility
+Dynamic font scaling
+High contrast
+Reduced motion mode
+VoiceOver support
+Screen reader compatibility
+Haptic feedback
+________________________________________
+Motion Design
+Use subtle, cinematic animations.
+Examples:
+Floating particles
+Gradient shifts
+Soft fades
+Morphing cards
+Animated timelines
+Smooth number transitions
+Season changes
+Parallax effects
+Keep animations emotionally calm and never distracting.
+________________________________________
+AI Features
+AI-generated daily reflections
+Automatic milestone summaries
+Memory recommendations
+Journal writing assistance
+Smart search across memories
+Emotion trend analysis
+Personalized insights
+________________________________________
+Technical Requirements
+•	Cross-platform (Flutter or React Native)
+•	Modular architecture
+•	Offline-first database
+•	Cloud synchronization
+•	Secure encrypted storage
+•	High performance
+•	Responsive layouts
+•	Material Design 3 + iOS Human Interface Guidelines
+•	Clean component architecture
+•	Scalable codebase
+________________________________________
+Overall Experience Goal
+The application should not feel like a stopwatch.
+It should feel like opening a beautifully designed museum of memories, where every statistic tells a story and every passing day gains emotional meaning.
+The product should evoke quiet reflection rather than sadness, transforming the passage of time into an elegant, deeply personal narrative through thoughtful design, meaningful data visualization, and immersive interactions.

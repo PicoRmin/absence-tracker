@@ -1,5 +1,5 @@
 function roundRect(ctx,x,y,w,h,r){
-  const rr = Math.min(r, w/2, h/2);
+  const rr = Math.max(0, Math.min(r, w/2, h/2));
   ctx.beginPath();
   ctx.moveTo(x+rr,y);
   ctx.arcTo(x+w,y,x+w,y+h,rr);
@@ -25,7 +25,10 @@ function bars(ctx,x,y,w,color,alpha,seed){
   const N=28, gap=6, bw=(w-gap*(N-1))/N;
   for(let i=0;i<N;i++){
     const h = 10 + Math.abs(Math.sin(i*0.7+seed))*46;
-    roundRect(ctx, x+i*(bw+gap), y-h/2, bw, h, bw/2); ctx.fill();
+    const px = x + i*(bw+gap);
+    const py = y - h/2;
+    roundRect(ctx, px, py, bw, h, Math.max(0, bw/2));
+    ctx.fill();
   }
   ctx.restore();
 }
