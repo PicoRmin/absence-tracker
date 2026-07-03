@@ -28,6 +28,7 @@ const sheetContent = document.getElementById('sheet-content');
 const navItems = document.querySelectorAll('.nav-item');
 const tabs = document.querySelectorAll('.tab');
 const sheetHandle = document.getElementById('sheet-handle');
+const sheetBackdrop = document.getElementById('sheet-backdrop');
 
 function loadState(){
   try{
@@ -101,10 +102,14 @@ function buildGallery(){
     const grid = section.querySelector('.gallery-grid');
     templates.forEach(t=>{
       const card = document.createElement('div'); card.className = 'tmpl-card' + (t.id===state.templateId ? ' active' : '');
-      const canvas = document.createElement('canvas'); canvas.className='thumb-canvas';
-      renderThumbnail(canvas, t, currentCategory().field);
+      const canvas = document.createElement('canvas');
+      canvas.className='thumb-canvas';
+      canvas.width = 240; canvas.height = 427;
+      const templateCategory = CATEGORIES.find(c=>c.id===t.cat) || currentCategory();
+      renderThumbnail(canvas, t, templateCategory.field);
       const label = document.createElement('div'); label.className='tname'; label.textContent=t.name;
-      card.appendChild(canvas); card.appendChild(label);
+      card.appendChild(canvas);
+      card.appendChild(label);
       card.addEventListener('click', ()=>{
         state.templateId = t.id; state.theme = t.theme; state.category = t.cat;
         state.texts = {...CATEGORIES.find(c=>c.id===t.cat).field};
@@ -210,8 +215,17 @@ function updateView(){
   draw();
 }
 
+function setSheetTitle(type){
+  const titleEl = document.getElementById('sheet-title');
+  if(!titleEl) return;
+  if(type === 'categories') titleEl.textContent = 'دسته‌بندی';
+  else if(type === 'gallery') titleEl.textContent = 'گالری قالب‌ها';
+  else if(type === 'customize') titleEl.textContent = 'تنظیمات';
+}
+
 function buildMobileSheet(type){
   activeMobileNav = type;
+  setSheetTitle(type);
   let content = '';
   if(type === 'categories'){
     content = '<h4 style="margin-bottom:16px;">دسته‌بندی خروجی</h4>';
@@ -219,6 +233,7 @@ function buildMobileSheet(type){
   } else if(type === 'gallery'){
     const groups = {};
     TEMPLATES.forEach(t=>{ const group = THEMES[t.theme].group; groups[group] = groups[group] || []; groups[group].push(t); });
+    content += '<div class="gallery-search"><label>جستجوی قالب</label><input id="gallery-search" type="search" placeholder="نام قالب را بنویس"></div>';
     Object.entries(groups).forEach(([groupName, templates])=>{
       content += `<div class="gallery-group"><div class="gname">${groupName}</div><div class="gallery-grid">`;
       templates.forEach(t=>{
@@ -227,7 +242,7 @@ function buildMobileSheet(type){
       content += '</div></div>';
     });
   } else if(type === 'customize'){
-    content = buildCustomizeContent();
+    content = `<div class="field"><button class="reset-btn" id="reset-customize" type="button">بازنشانی تنظیمات</button></div>${buildCustomizeContent()}`;
   }
   sheetContent.innerHTML = content;
   attachMobileSheetEvents(type);
@@ -246,6 +261,7 @@ function attachMobileSheetEvents(type){
         if(firstTemplate){ state.templateId = firstTemplate.id; state.theme = firstTemplate.theme; }
         saveState();
         updateView();
+        closeMobileSheet();
       });
     });
   }
@@ -259,8 +275,20 @@ function attachMobileSheetEvents(type){
         state.texts = {...CATEGORIES.find(c=>c.id===tmpl.cat).field};
         saveState();
         updateView();
+        mobileSheet.classList.remove('open');
+        sheetBackdrop.classList.remove('visible');
       });
     });
+    const searchInput = sheetContent.querySelector('#gallery-search');
+    if(searchInput){
+      searchInput.addEventListener('input', e=>{
+        const query = e.target.value.trim().toLowerCase();
+        sheetContent.querySelectorAll('.tmpl-card').forEach(card=>{
+          const title = card.querySelector('.tname').textContent.toLowerCase();
+          card.style.display = title.includes(query) ? 'block' : 'none';
+        });
+      });
+    }
     setTimeout(()=>{
       sheetContent.querySelectorAll('[data-template-id]').forEach(canvas=>{
         const tmplId = canvas.dataset.templateId;
@@ -271,6 +299,23 @@ function attachMobileSheetEvents(type){
   }
   if(type === 'customize'){
     attachCustomizeEvents(sheetContent);
+    const resetBtn = sheetContent.querySelector('#reset-customize');
+    if(resetBtn){
+      resetBtn.addEventListener('click', ()=>{
+        const category = currentCategory();
+        state.theme = currentTemplate().theme;
+        state.accent = null;
+        state.cornerRadius = 28;
+        state.shadowIntensity = 40;
+        state.alignment = 'right';
+        state.watermark = true;
+        state.brand = false;
+        state.texts = {...category.field};
+        saveState();
+        refreshCustomize();
+        draw();
+      });
+    }
   }
 }
 
@@ -347,15 +392,23 @@ function initEvents(){
       setActiveBottomNav(navType);
       buildMobileSheet(navType);
       mobileSheet.classList.add('open');
+      sheetBackdrop.classList.add('visible');
     });
   });
-  sheetHandle.addEventListener('click', ()=> mobileSheet.classList.remove('open'));
+  sheetHandle.addEventListener('click', ()=> closeMobileSheet());
+  sheetBackdrop.addEventListener('click', ()=> closeMobileSheet());
+  document.getElementById('sheet-close-btn').addEventListener('click', ()=> closeMobileSheet());
   mobileSheet.addEventListener('touchstart', e=>{ mobileSheet.dataset.startY = e.touches[0].clientY; });
   mobileSheet.addEventListener('touchmove', e=>{
     const startY = Number(mobileSheet.dataset.startY || 0);
     const currentY = e.touches[0].clientY;
-    if(currentY - startY > 60){ mobileSheet.classList.remove('open'); }
+    if(currentY - startY > 60){ closeMobileSheet(); }
   });
+}
+
+function closeMobileSheet(){
+  mobileSheet.classList.remove('open');
+  sheetBackdrop.classList.remove('visible');
 }
 
 function init(){
